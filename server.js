@@ -10,10 +10,16 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // --- Dify API Configuration ---
-// 请输入自己的 API Key（在 Dify 应用「访问 API」页面获取，以 app- 开头）
-// 也可通过环境变量 DIFY_API_KEY 传入：const DIFY_API_KEY = process.env.DIFY_API_KEY || "请输入自己的api";
-const DIFY_BASE_URL = "https://api.dify.ai/v1";
-const DIFY_API_KEY = "请输入自己的api";
+// 请在 .env 文件中配置 DIFY_API_KEY（在 Dify 应用「访问 API」页面获取，以 app- 开头）
+const DIFY_BASE_URL = process.env.DIFY_BASE_URL || "https://api.dify.ai/v1";
+const DIFY_API_KEY = process.env.DIFY_API_KEY;
+
+if (!DIFY_API_KEY || DIFY_API_KEY === "请输入自己的api") {
+  console.error("\n  ❌ 错误: 请先配置 DIFY_API_KEY 环境变量！\n");
+  console.error("  方式一：创建 .env 文件并添加 DIFY_API_KEY=你的API密钥");
+  console.error("  方式二：export DIFY_API_KEY=你的API密钥 后启动\n");
+  process.exit(1);
+}
 
 app.use(express.json({ limit: "10mb" }));
 app.use(express.static(join(__dirname, "public")));
@@ -95,7 +101,9 @@ app.get("/api/health", (req, res) => {
 });
 
 const server = http.createServer(app);
-server.listen(PORT, () => {
-  console.log(`\n  Dify Workflow Web is running!\n`);
-  console.log(`  ➜  Local:   http://localhost:${PORT}\n`);
+server.listen(PORT, "0.0.0.0", () => {
+  console.log(`\n  ✅ 学术关键词翻译扩增助手 已启动！\n`);
+  console.log(`  ➜  本地访问:  http://localhost:${PORT}`);
+  console.log(`  ➜  公网访问:  http://<your-ip>:${PORT}`);
+  console.log(`  ➜  API 端点:  ${DIFY_BASE_URL}/workflows/run\n`);
 });
